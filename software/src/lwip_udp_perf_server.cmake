@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.3)
 
-find_package(common)
 list(APPEND TOTAL_MAC_INSTANCES ${EMACPS_NUM_DRIVER_INSTANCES})
 list(APPEND TOTAL_MAC_INSTANCES ${AXIETHERNET_NUM_DRIVER_INSTANCES})
 list(APPEND TOTAL_MAC_INSTANCES ${EMACLITE_NUM_DRIVER_INSTANCES})
@@ -42,4 +41,4 @@ endif()
 set(y ${${prop_list}})
 list(GET y 0 reg)
 set(PLATFORM_EMAC_BASEADDR "${reg}")
-configure_file(${CMAKE_SOURCE_DIR}/platform_config.h.in ${CMAKE_BINARY_DIR}/include/platform_config.h)
+configure_file(${CMAKE_SOURCE_DIR}/platform_/platform_config.h.in ${CMAKE_BINARY_DIR}/include/platform_config.h)

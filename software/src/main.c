@@ -1,35 +1,61 @@
-#include "xscugic.h"
-#include "zynq_interrupt.h"
+#include <stdio.h>
+#include "lwip/priv/tcp_priv.h"
+#include "platform.h"
+#include "lwip_init_.h"
+#include "lwip_app_.h"
 #include "init_dma.h"
-#include "lwip_init.h"
 
 
-#define INT_DEVICE_ID      XPAR_SCUGIC_SINGLE_DEVICE_ID
+extern volatile int TcpFastTmrFlag;
+extern volatile int TcpSlowTmrFlag;
 
-XScuGic XScuGicInstance;
+void platform_enable_interrupts(void);
+void start_application(void);
+void print_app_header(void);
 
-int lwip_loop();
-int start_read_send = 0;
-extern void init_platform();
-extern void init_udp();
-extern void cleanup_platform();
-
-int main()
+u16 counter_refl = 0;
+        
+int main(void)
 {
     init_platform();
-    InterruptInit(INT_DEVICE_ID, &XScuGicInstance);
-    init_dma_(&XScuGicInstance);
     init_udp();
+    XAxiDma_Initial(&AxiDma);
+    RxDone = 1;
+	while (1) {
 
-    while (1)
-    {
-    	if (start_read_send)
-    	{
-    		lwip_loop();
-			start_read_send = 0;
-    	}
-    }
+		if (TcpFastTmrFlag) {
+			tcp_fasttmr();
+			TcpFastTmrFlag = 0;
+		}
+		if (TcpSlowTmrFlag) {
+			tcp_slowtmr();
+			TcpSlowTmrFlag = 0;
+            
+        }
+		xemacif_input(&server_netif);
 
-    cleanup_platform();
-    return 0;
+        if (RxDone & flag_start & flag_timer){
+            RxDone = 0;
+            flag_timer = 0;
+            Xil_DCacheInvalidateRange((UINTPTR) DmaRxBuffer, current_conf.adc_byte_count);
+
+            header[3] = (counter_refl >> 8) & 0xff;
+			header[4] = (counter_refl) & 0xff;
+            header[5] = (counter_refl >> 8) & 0xff;
+		    header[6] = (counter_refl) & 0xff;
+            send_adc_data((const char *) DmaRxBuffer, current_conf.adc_byte_count);
+            // for (int i = 0; i < 250; i++){
+            //     xil_printf("%d ", DmaRxBuffer[i]);
+            // }
+            // xil_printf("\r\n");  
+            
+            XAxiDma_Adc(AD9238_CH0_BASE, current_conf.adc_byte_count, current_conf.pulse_width, &AxiDma);
+            counter_refl++;
+        }
+	}
+
+	cleanup_platform();
+
+	return 0;
 }
+

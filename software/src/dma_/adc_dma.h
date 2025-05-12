@@ -1,14 +1,26 @@
 /*
  * adc_dma.h
  *
- *  Created on: 2018Äê8ÔÂ14ÈÕ
+ *  Created on: 2018ï¿½ï¿½8ï¿½ï¿½14ï¿½ï¿½
  *      Author: Administrator
  */
 
 #ifndef SRC_ADC_DMA_H_
 #define SRC_ADC_DMA_H_
 
-#include "ad9238_sample.h"
+#include "xil_types.h"
+#include "xstatus.h"
+
+#define AD9238_SAMPLE_S00_AXI_SLV_REG0_OFFSET 0
+#define AD9238_SAMPLE_S00_AXI_SLV_REG1_OFFSET 4
+#define AD9238_SAMPLE_S00_AXI_SLV_REG2_OFFSET 8
+#define AD9238_SAMPLE_S00_AXI_SLV_REG3_OFFSET 12
+
+#define AD9238_SAMPLE_mWriteReg(BaseAddress, RegOffset, Data) \
+  	Xil_Out32((BaseAddress) + (RegOffset), (u32)(Data))
+
+#define AD9238_SAMPLE_mReadReg(BaseAddress, RegOffset) \
+    Xil_In32((BaseAddress) + (RegOffset))      
 
 /*
  *DMA redefines
@@ -24,7 +36,7 @@
 /*
  *ADC defines
  */
-#define AD9238_CH0_BASE    XPAR_AD9238_SAMPLE_0_S00_AXI_BASEADDR
+#define AD9238_CH0_BASE    XPAR_AD9238_SAMPLE_0_BASEADDR
 #define AD9238_CH1_BASE    XPAR_AD9238_SAMPLE_1_S00_AXI_BASEADDR
 #define AD9238_START       AD9238_SAMPLE_S00_AXI_SLV_REG0_OFFSET
 #define AD9238_LENGTH      AD9238_SAMPLE_S00_AXI_SLV_REG1_OFFSET

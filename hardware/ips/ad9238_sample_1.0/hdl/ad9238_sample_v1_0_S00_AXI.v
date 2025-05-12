@@ -20,6 +20,7 @@
 	    input[13:0]                 adc_data,
 	    output                      start_laser_o,
 	    output reg [C_S_AXI_DATA_WIDTH-1:0] laser_pulse_width_o,
+	    output reg [C_S_AXI_DATA_WIDTH-1:0] laser_pulse_delay_o,
 		output [15:0]               m00_axis_tdata,
         output [1:0]                m00_axis_tkeep,
         output                      m00_axis_tlast,
@@ -261,6 +262,7 @@
 	      slv_reg2 <= 0;
 	      slv_reg3 <= 0;
 	      laser_pulse_width_o <= 32'b0;
+	      laser_pulse_delay_o <= 32'b0;
 	    end 
 	  else begin
 	    if (slv_reg_wren)
@@ -294,6 +296,7 @@
 	                // Respective byte enables are asserted as per write strobes 
 	                // Slave register 3
 	                slv_reg3[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+	                laser_pulse_delay_o[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
 	              end  
 	          default : begin
 	                      slv_reg0 <= slv_reg0;
@@ -301,6 +304,7 @@
 	                      slv_reg2 <= slv_reg2;
 	                      slv_reg3 <= slv_reg3;
 	                      laser_pulse_width_o <= laser_pulse_width_o;
+	                      laser_pulse_delay_o <= laser_pulse_delay_o;
 	                    end
 	        endcase
 	      end
